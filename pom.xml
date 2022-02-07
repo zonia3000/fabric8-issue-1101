@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.mycompany</groupId>
+    <artifactId>fabric8-issue-1101</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+    
+    <profiles>
+        <profile>
+            <id>httpd</id>
+            <properties>
+                <image.name>httpd</image.name>
+                <skip.build>true</skip.build>
+                <has.healthcheck>false</has.healthcheck>
+            </properties>
+        </profile>
+        <profile>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <id>test1</id>
+            <properties>
+                <image.name>test1</image.name>
+                <skip.build>false</skip.build>
+                <has.healthcheck>true</has.healthcheck>
+            </properties>
+        </profile>
+    </profiles>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.38.1</version>
+                <configuration>
+                    <images>
+                        <image>
+                            <name>${image.name}</name>
+                            <build>
+                                <skip>${skip.build}</skip> 
+                                <dockerFile>Dockerfile</dockerFile>
+                            </build>
+                            <run>
+                                <wait>
+                                    <tcp>
+                                        <ports>
+                                            <port>80</port>
+                                        </ports>
+                                    </tcp>
+                                    <time>17000</time>
+                                    <healthy>${has.healthcheck}</healthy>
+                                </wait>
+                            </run>
+                        </image>
+                    </images>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
